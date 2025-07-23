@@ -1,0 +1,131 @@
+// LAb-02: Date: 23-07-25
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// -------------------------------------------------
+// Task -01
+bool isConstant(string s) {
+   vector<char> nums = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+
+   for (int i = 0; i < s.size(); i++) {
+      char c = s[i];
+      bool isCons = false;
+
+      for (char d : nums) {
+         if (c == d) {
+            isCons = true;
+            break;
+         }
+      }
+
+      if (!isCons) {
+         return false;
+      }
+   }
+
+   return true;
+}
+
+// ------------------------------- Task - 02 -----------------------------------------
+void isOperator(string s) {
+   vector<char> operatorArr;
+
+   for (char c : s) {
+      if (c == '+' || c == '-' || c == '/' || c == '*' || c == '%' || c == '=') {
+         operatorArr.push_back(c);
+      }
+   }
+
+   for (int i = 0; i < operatorArr.size(); i++) {
+      cout << "Operator " << i + 1 << " : " << operatorArr[i] << endl;
+   }
+}
+
+// -------------------------- Task - 03 ----------------------------
+void isCommentLine() {
+   cin.ignore();  // To consume leftover newline from previous input
+   string s;
+   getline(cin, s);
+
+   int n = s.size();
+
+   if (n >= 2 && s[0] == '/' && s[1] == '*') {
+      cout << "Multi line comment" << endl;
+   } else if (n >= 2 && s[0] == '/' && s[1] == '/') {
+      cout << "Single line comment" << endl;
+   } else {
+      cout << "Not a comment line" << endl;
+   }
+}
+
+// -------------------------- Task - 04 ----------------------------
+bool isAlpha(char ch) {
+   for (char c = 'A'; c <= 'Z'; c++) {
+      if (ch == c) return true;
+   }
+
+   for (char c = 'a'; c <= 'z'; c++) {
+      if (ch == c) return true;
+   }
+
+   return false;
+}
+
+bool isDigit(char c) {
+   vector<char> digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+
+   for (char ch : digits) {
+      if (ch == c) return true;
+   }
+
+   return false;
+}
+
+bool isAlphaNumeric(string s) {
+   if (!(isAlpha(s[0]) || s[0] == '_')) {
+      return false;
+   }
+
+   for (int i = 1; i < s.size(); i++) {
+      if (!(isAlpha(s[i]) || isDigit(s[i]) || s[i] == '_')) {
+         return false;
+      }
+   }
+
+   return true;
+}
+
+// -------------------------- Main ----------------------------
+int main() {
+   cout << "Task 01: Check if string is a constant (number only):\n";
+   string s1;
+   cin >> s1;
+   if (isConstant(s1)) {
+      cout << "Given input is a number.\n";
+   } else {
+      cout << "Not numeric.\n";
+   }
+
+   cout << "\nTask 02: Detect operators in a string:\n";
+   string s2;
+   cin >> s2;
+   isOperator(s2);
+
+   cout << "\nTask 03: Check comment line:\n";
+   isCommentLine();
+
+   cout << "\nTask 04: Check if input is alpha-numeric identifier:\n";
+   string s4;
+   cin >> s4;
+   if (isAlphaNumeric(s4)) {
+      cout << "Alpha Numeric.\n";
+   } else {
+      cout << "Not Alpha Numeric.\n";
+   }
+
+   return 0;
+}
