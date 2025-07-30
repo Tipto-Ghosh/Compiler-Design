@@ -140,15 +140,11 @@ int main() {
 
 //    task-2
    string s;
-//    cin >> s;
-
-    getline(cin , s);
+   getline(cin , s);
    
    isOperator(s); 
 
-   // int n = s.size();
-   // debug(n);
-   
+
 
    // task 03
    // isCommentLine();
