@@ -154,8 +154,10 @@ bool isIdentifier(string s) {
 
 void tokenTypes(string s) {
     // tokens types are: indentifer , puntuation , keyword , operator , constants
-
-    if(isKeywords(s)) {
+    if(s == "//") {
+        cout << "single line comment" << endl;
+    }
+    else if(isKeywords(s)) {
         cout << s << " -> keyword" << endl;
     }
     else if(isIdentifier(s)) {
