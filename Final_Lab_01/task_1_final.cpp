@@ -27,62 +27,64 @@
 using namespace std;
 
 string trim_space(const string &s) {
-    size_t start = s.find_first_not_of(" \t\r\n");
-    size_t end = s.find_last_not_of(" \t\r\n");
+    size_t start = s.find_first_not_of(" \t\n\r");
     if(start == string::npos) return "";
+    size_t end = s.find_last_not_of(" \t\n\r");
     return s.substr(start, end - start + 1);
 }
 
-bool isAlpha(char ch) {
-    for(char c = 'A'; c <= 'Z'; c++) if(ch == c) return true;
-    for(char c = 'a'; c <= 'z'; c++) if(ch == c) return true;
-    return false;
+bool isKeywords(const string &s) {
+    vector<string> keywords = {"int","float","double","char","void","long","short","bool"};
+    return find(keywords.begin(), keywords.end(), s) != keywords.end();
 }
 
-bool isDigit(char c) {
-    vector<char> digits = {'0','1','2','3','4','5','6','7','8','9'};
-    for(char ch : digits) if(ch == c) return true;
-    return false;
-}
-
-bool isAlphaNumeric(string s) {
-    if(!(isAlpha(s[0]) || s[0] == '_')) return false;
-    for(int i = 1; i < s.size(); i++) {
-        if(!((isAlpha(s[i])) || (isDigit(s[i])) || (s[i] == '_'))) return false;
+bool isIdentifier(const string &s) {
+    if(s.empty() || (!isalpha(s[0]) && s[0] != '_')) return false;
+    for(char c : s) {
+        if(!isalnum(c) && c != '_') return false;
     }
     return true;
 }
 
-bool isKeywords(string word) {
-    vector<string> keys = {"void" , "int","float","main","double","string","const","bool","char","return"};
-    for(string key : keys) if(word == key) return true;
-    return false;
+bool isValidParameter(const string &param) {
+    stringstream ss(param);
+    string type, name;
+    ss >> type >> name;
+    if(!isKeywords(type)) return false;
+    if(name.empty()) return true;
+    return isIdentifier(name);
 }
 
-bool isIdentifier(string s) {
-    bool isValidName = isAlphaNumeric(s); 
-    bool isKey = isKeywords(s);
-    return (isValidName && !isKey);
+string removeComments(string s) {
+    bool singleLine = false;
+    bool multiLine = false;
+    string res;
+    for(size_t i = 0; i < s.size(); i++) {
+        if(!multiLine && i+1 < s.size() && s[i] == '/' && s[i+1] == '/') {
+            break;
+        }
+        if(!multiLine && i+1 < s.size() && s[i] == '/' && s[i+1] == '*') {
+            multiLine = true;
+            i++;
+            continue;
+        }
+        if(multiLine && i+1 < s.size() && s[i] == '*' && s[i+1] == '/') {
+            multiLine = false;
+            i++;
+            continue;
+        }
+        if(!multiLine) res += s[i];
+    }
+    return trim_space(res);
 }
 
-bool isValidParameter(string &p) {
-    if(p.empty()) return false;
-    stringstream ss(p);
-    string data_type, variable_name;
-    ss >> data_type >> variable_name;
-    if(data_type.empty()) return false;
-    if(isKeywords(data_type) == false) return false;
-    if(variable_name.empty()) return true;
-    if(isIdentifier(variable_name) == false) return false;
-    return true;
-}
 
 void analyzeFunction(string &line) {
     string s = trim_space(line);
     size_t open_parenthesis = s.find('(');
     size_t close_parenthesis = s.find(')');
     if(open_parenthesis == string::npos || close_parenthesis == string::npos || close_parenthesis < open_parenthesis) {
-        cout << s << " -> invalid decleration" << endl;
+        cout << s << " -> invalid declaration" << endl;
         return;
     }
     string before_parenthesis = trim_space(s.substr(0, open_parenthesis));
@@ -92,7 +94,7 @@ void analyzeFunction(string &line) {
     string returnType, funcName;
     ss >> returnType >> funcName;
     if(returnType.empty() || funcName.empty()) {
-        cout << s << " -> invalid decleration" << endl;
+        cout << s << " -> invalid declaration" << endl;
         return;
     }
     if (!isKeywords(returnType)) {
@@ -102,6 +104,15 @@ void analyzeFunction(string &line) {
     if(!isIdentifier(funcName)) {
         cout << s << " -> invalid function name" << endl;
         return;
+    }
+    if (params.empty() && returnType != "void") {
+        if (after_parenthesis == ";") {
+            cout << s << " -> contains declaration but no definition" << endl;
+            return;
+        } else {
+            cout << s << " -> invalid declaration (non-void function without params)" << endl;
+            return;
+        }
     }
     if(!params.empty()) {
         stringstream pss(params);
@@ -115,10 +126,13 @@ void analyzeFunction(string &line) {
         }
     }
     if(after_parenthesis.find('{') != string::npos && after_parenthesis.find('}') != string::npos) {
-        cout << s << " -> have declaration and definition" << endl;
+        cout << s << " -> contains declaration and definition" << endl;
+    }
+    else if(after_parenthesis == ";") {
+        cout << s << " -> contains declaration but no definition" << endl;
     }
     else {
-        cout << s << " -> have declaration but no definition" << endl;
+        cout << s << " -> invalid declaration" << endl;
     }
 }
 

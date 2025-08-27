@@ -1,7 +1,18 @@
 int test(int t){ 
 
 }
+// hello
 
-flot test()
+/*
+hdahdajxi
+hiudhai
+*/
+float test();
 
-double f()
+void f()
+
+int ft()
+
+float f(int a , st)
+
+float f()
